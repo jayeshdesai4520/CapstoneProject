@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Add this line to include web3.js -->
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+<title>Join Our FarmX</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<style>
+/* Your custom styles go here */
+</style>
+</head>
+<body>
+<div id="navbar">
+  <img src="logo.jpeg" alt="Logo" class="small-logo">
+  <a href="index.html">Home</a>
+  <a href="dashboard.html">Dashboard</a>
+  <div class="wallet-button">
+    <img src="index.png" alt="Wallet" id="walletImage" onclick="connectToMetaMask()">
+    <span id="balance">FarmX Tokens: 100,000</span>
+	
+  </div>
+</div>
+
+
+</div>
+<div id="container">
+  <div id="villages">
+    <h1>Welcome to Our FarmX</h1>
+    <p>Explore available villages and join our community today!</p>
+    <ul>
+      <li>
+        <span class="village-name" onclick="showModal('Ganeshpur')">Ganeshpur</span>
+        <button class="view-button" onclick="showLocation(30.712585, 77.861215)">View</button>
+      </li>
+      <li>
+        <span class="village-name" onclick="showModal('Krishnanagar')">Krishnanagar</span>
+        <button class="view-button" onclick="showLocation(30.712585, 77.102493)">View</button>
+      </li>
+      <li>
+        <span class="village-name" onclick="showModal('Radhapur')">Radhapur</span>
+        <button class="view-button" onclick="showLocation(30.712585, 79.787271)">View</button>
+      </li>
+    </ul>
+  </div>
+  <div id="map"></div>
+</div>
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeModal()">&times;</span>
+    <div class="modal-section">
+      <h2>Village Details</h2>
+      <div class="modal-section">
+        <p><strong>Village Name: Ganeshpur</strong> <span id="villageName"></span></p>
+        <p><strong>GPS Coordinates:</strong> <span id="gpsCoordinates"></span></p>
+        <p><strong>Postal Code:</strong> <span id="postalCode"></span></p>
+      </div>
+      <div class="modal-section">
+        <h3>Plantation Details</h3>
+        <p><span id="plantationDetails"></span></p>
+      </div>
+      <div class="modal-section">
+        <h3>Land Size</h3>
+        <p class="acres"><span id="acres"></span> Acres - 100</p>
+      </div>
+      <div class="modal-section">
+        <h3>Contact Information</h3>
+        <p><strong>Email:</strong> info@examplevillage.com</p>
+        <p><strong>Phone:</strong> (123) 456-7890</p>
+      </div>
+      <button class="view-button" onclick="showRegistrationForm()">Register</button>
+    </div>
+    <div class="modal-section" id="registrationForm" style="display: none;">
+      <h3>Registration Form</h3>
+      <form>
+        <label for="postalCodeInput">Postal Code:</label>
+        <input type="text" id="postalCodeInput" name="postalCodeInput"><br><br>
+        <label for="landInput">Total Land Size (acres):</label>
+        <input type="text" id="landInput" name="landInput"><br><br>
+        <button type="button" class="view-button" onclick="submitRegistration()">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+ var map = L.map('map').setView([30.712585, 77.861215], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Define the coordinates for the square's top-left and bottom-right corners
+// Define the coordinates for the larger square's top-left and bottom-right corners
+// Calculate the latitude and longitude span for approximately 2 kilometers
+var latSpan = 0.0008;
+var lngSpan = 0.0008;
+
+// Define the coordinates for the larger square's top-left and bottom-right corners
+var topLeft = [30.712585 + latSpan, 77.861215 - lngSpan];
+var bottomRight = [30.712585 - latSpan, 77.861215 + lngSpan];
+
+// Create a rectangle using the specified corners
+var squareBorder = L.rectangle([topLeft, bottomRight], {
+  color: 'red',
+  weight: 2,
+  fillOpacity: 0
+}).addTo(map);
+
+
+// Define the coordinates for the larger square's top-left and bottom-right corners
+var topLefttwo = [30.712585 + latSpan, 76.987654 - lngSpan];
+var bottomRighttwo = [30.712585 - latSpan, 76.987654 + lngSpan];
+
+// Create a rectangle using the specified corners
+var squareBordertwo = L.rectangle([topLefttwo, bottomRighttwo], {
+  color: 'red',
+  weight: 2,
+  fillOpacity: 0
+}).addTo(map);
+
+// Define the coordinates for the larger square's top-left and bottom-right corners
+var topLeftthree = [30.712585 + latSpan,  79.123456 - lngSpan];
+var bottomRightthree = [30.712585 - latSpan,  79.123456 + lngSpan];
+
+// Create a rectangle using the specified corners
+var squareBorderthree = L.rectangle([topLeft, bottomRight], {
+  color: 'red',
+  weight: 2,
+  fillOpacity: 0
+}).addTo(map);
+
+
+
+ var modalMap = L.map('modalMap').setView([30.712585, 77.861215], 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(modalMap);
+
+  
+
+  function showLocation(latitude, longitude) {
+    map.setView([latitude, longitude], 15);
+  }
+
+  function showModal(villageName) {
+    var modal = document.getElementById('myModal');
+    modal.style.display = 'block';
+    var modalLatitude, modalLongitude, modalAcres;
+console.log('Connecting to maps');
+    if (villageName === 'Ganeshpur') {
+      modalLatitude = 30.712585;
+      modalLongitude = 77.861215;
+      modalAcres = 200;
+      document.getElementById('gpsCoordinates').innerText = "30.712585, 77.861215";
+      document.getElementById('postalCode').innerText = "123456";
+      document.getElementById('plantationDetails').innerText = "Ganeshpur village is surrounded by vast agricultural lands, featuring farms cultivating crops like wheat, rice, and vegetables. The farms are known for their sustainable and eco-friendly practices.";
+    } else if (villageName === 'Krishnanagar') {
+      modalLatitude = 30.712585;
+      modalLongitude = 76.987654;
+      modalAcres = 300;
+      document.getElementById('gpsCoordinates').innerText = "28.704060, 77.102493";
+      document.getElementById('postalCode').innerText = "789012";
+      document.getElementById('plantationDetails').innerText = "Krishnanagar village is located on the outskirts of the city and features sprawling farms with fruit orchards, flower gardens, and open spaces. It offers a peaceful rural environment near the city.";
+    } else if (villageName === 'Radhapur') {
+      modalLatitude = 30.712585;
+      modalLongitude = 79.123456;
+      modalAcres = 150;
+      document.getElementById('gpsCoordinates').innerText = "26.912434, 75.787271";
+      document.getElementById('postalCode').innerText = "345678";
+      document.getElementById('plantationDetails').innerText = "Radhapur village boasts expansive farmlands with colorful flower fields and aromatic crops. It offers a serene and picturesque countryside setting for those seeking a rural experience.";
+    }
+
+    modalMap.setView([modalLatitude, modalLongitude], 14);
+    document.getElementById('villageName').innerText = villageName;
+    document.getElementById('acres').innerText = modalAcres + " acres";
+
+    addBorderSquare(modalLatitude, modalLongitude, modalMap);
+  }
+
+  function showRegistrationForm() {
+    var registrationForm = document.getElementById('registrationForm');
+    registrationForm.style.display = 'block';
+  }
+
+  function closeModal() {
+    var modal = document.getElementById('myModal');
+    var registrationForm = document.getElementById('registrationForm');
+    modal.style.display = 'none';
+    registrationForm.style.display = 'none';
+  }
+
+  function submitRegistration() {
+    var postalCode = document.getElementById('postalCodeInput').value;
+    var landSize = document.getElementById('landInput').value;
+
+    // Implement your logic to handle the form submission here
+    // For now, let's just show an alert with the submitted data
+    alert('Submitted \nPostal Code: ' + postalCode + '\nLand Size: ' + landSize + ' acres');
+
+    closeModal(); // Close the modal and reset the form
+  }
+  // Replace your existing connectToMetaMask function with this:
+
+
+// Your existing JavaScript functions and code
+
+// Define the connectToMetaMask function
+async function connectToMetaMask() {
+  
+    try {
+      await window.ethereum.enable();
+      const web3 = new Web3(window.ethereum);
+      const accounts = await web3.eth.getAccounts();
+
+      if (accounts.length > 0) {
+        const address = accounts[0];
+        const balanceWei = await web3.eth.getBalance(address);
+        const balanceEther = web3.utils.fromWei(balanceWei, 'ether');
+
+        const balanceElement = document.getElementById('balance');
+        balanceElement.innerText = 'Balance: ' + balanceEther + ' ETH';
+      } else {
+        console.error('No accounts found.');
+      }
+    } catch (error) {
+      console.error('Error connecting to MetaMask:', error);
+
+      // Log additional error details if available
+      if (error.message) {
+        console.error('Error message:', error.message);
+      }
+      if (error.code) {
+        console.error('Error code:', error.code);
+      }
+      if (error.stack) {
+        console.error('Error stack trace:', error.stack);
+      }
+    }
+  
+}
+
+
+
+</script>
+</body>
+</html>
+

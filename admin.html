@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+<title>Farming Community Dashboard</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  #navbar {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+    align-items: center;
+    height: 60px;
+    background-color: #3498db;
+    color: white;
+  }
+  #navbar a {
+    text-decoration: none;
+    margin-right: 30px;
+    color: white;
+    font-size: 31px;
+    font-family: Arial;
+  }
+  #navbar .wallet-button {
+    margin-left: auto;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+  #navbar .wallet-button img {
+    max-height: 50px;
+  }
+  #container {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    margin: auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  #dashboard {
+    flex: 2;
+    padding: 20px;
+  }
+  #map {
+    flex: 1;
+    height: 70vh;
+    border-left: 1px solid #ccc;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 20px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 24px;
+    margin: 0 0 15px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #555;
+    font-family: Arial, sans-serif;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+  }
+  .village-name {
+    cursor: pointer;
+    color: #3498db;
+    text-decoration: underline;
+    margin-right: 10px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  .village-acres {
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #555;
+  }
+  .view-button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 1100px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+  }
+  .modal-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    position: relative;
+  }
+  .modal-section {
+    flex: 1;
+    padding: 5px;
+    margin: 0;
+  }
+  .modal-left {
+    flex: 1;
+  }
+  .modal-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+  /* Small map styles */
+  #modalMap {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+  }
+  /* New style for acres */
+  .acres {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  /* Styling for Village Section */
+  .village-list {
+    list-style: none;
+    padding: 0;
+  }
+  .village-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+  }
+  .village-item:last-child {
+    border-bottom: none;
+  }
+  .village-item a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .wallet-button {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: white;
+    margin-left: auto;
+    padding-right: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .wallet-button img {
+    max-height: 50px;
+    margin-right: 10px;
+  }
+  /* Add this CSS to your existing styles */
+.small-logo {
+  max-height: 90px; /* Adjust the height as needed */
+  margin-right: 90px;
+}
+
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+<div id="navbar">
+  <!-- Add the logo image here -->
+  <img src="logo.jpeg" alt="Logo" class="small-logo">
+  
+  <div class="wallet-button">
+    <img src="index.png" alt="Wallet" id="walletImage" onclick="connectToMetaMask()">
+    <span id="balance">Admin</span>
+  </div>
+</div>
+
+<div id="container">
+  <div id="dashboard">
+    <h1>Send Profit</h1>
+     <h2>Welcome to the Profit FarmX Dashboard</h2>
+  <p>Explore and manage various aspects of your farming activities while staying connected with the vibrant community. From tracking your village's progress to sending profits, this dashboard empowers you with the tools to cultivate success.</p>
+   <div id="village-section">
+      <h2>Your Villages</h2>
+      <ul class="village-list">
+        <li class="village-item">
+          <a href="#" onclick="showVillage('Ganeshpur')">Ganeshpur</a>
+          <p class="village-acres">Acres: <span id="GaneshpurAcres">100</span></p>
+          <button class="view-button" onclick="openProfitPopup('Ganeshpur')">Send Profit</button>
+        </li>
+        <!-- Add more village items here as needed -->
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- Add a hidden profit modal -->
+<div id="profitModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeProfitModal()">&times;</span>
+    <div class="modal-section">
+      <h2>Send Profit</h2>
+      <select id="villageSelect">
+        <option value="Ganeshpur">Ganeshpur</option>
+        <!-- Add more village options here as needed -->
+      </select>
+      <label for="profitInput">Total Profit:</label>
+      <input type="number" id="profitInput" min="0" step="50">
+      <button class="view-button" onclick="confirmSendProfit()">Send</button>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+  // Your existing JavaScript code
+  
+  // Show the profit modal
+  function openProfitPopup(villageName) {
+    const modal = document.getElementById('profitModal');
+    const villageSelect = document.getElementById('villageSelect');
+    const profitInput = document.getElementById('profitInput');
+
+    // Set default values in the modal
+    villageSelect.value = villageName;
+    profitInput.value = '';
+
+    modal.style.display = 'block';
+  }
+
+  // Close the profit modal
+  function closeProfitModal() {
+    const modal = document.getElementById('profitModal');
+    modal.style.display = 'none';
+  }
+
+  // Confirm sending profit
+  function confirmSendProfit() {
+    const villageSelect = document.getElementById('villageSelect');
+    const profitInput = document.getElementById('profitInput');
+
+    const selectedVillage = villageSelect.value;
+    const profitAmount = parseFloat(profitInput.value);
+
+    if (isNaN(profitAmount) || profitAmount <= 0) {
+      alert('Please enter a valid profit amount.');
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to send a profit of ${profitAmount} FarmX to ${selectedVillage}?`;
+
+    if (confirm(confirmMessage)) {
+      // TODO: Implement logic to send profit to the selected village
+      // You can use the selectedVillage and profitAmount variables
+
+      // Close the modal after sending profit
+      closeProfitModal();
+      
+      // Show a success alert
+      alert(`Profit of ${profitAmount} FarmX sent to ${selectedVillage}`);
+    }
+  }
+</script>
+</body>
+</html>

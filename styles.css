@@ -1,0 +1,146 @@
+ body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  #navbar {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+    align-items: center;
+    height: 60px;
+    background-color: #3498db;
+    color: white;
+  }
+  #navbar a {
+    text-decoration: none;
+    margin-right: 30px; /* Add margin between Home and Dashboard */
+    color: white;
+    font-size: 31px; /* Increased font size */
+    font-family: Arial;
+  }
+  .small-logo {
+  max-height: 90px; /* Adjust the height as needed */
+  margin-right: 90px;
+}
+  #navbar .wallet-button {
+    margin-left: auto;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+  #navbar .wallet-button img {
+    max-height: 50px;
+  }
+  #container {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    margin: auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  #villages {
+    flex: 1;
+    padding: 20px;
+  }
+  #map {
+    flex: 2;
+    height: 70vh;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 20px;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+  }
+  .village-name {
+    cursor: pointer;
+    color: #3498db;
+    text-decoration: underline;
+    margin-right: 10px;
+    padding: 10px;
+  }
+  .view-button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 1100px; /* Increased maximum width */
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+  }
+  .modal-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    position: relative;
+  }
+  .modal-section {
+    flex: 1;
+    padding: 5px;
+    margin: 0; /* Remove margin */
+  }
+  .modal-left {
+    flex: 1;
+  }
+  .modal-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+  /* Small map styles */
+  #modalMap {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+  }
+  /* New style for acres */
+  .acres {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+    .wallet-button {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: white;
+    margin-left: auto;
+    padding-right: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .wallet-button img {
+    max-height: 50px;
+    margin-right: 10px;
+  }

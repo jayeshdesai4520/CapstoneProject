@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+<title>Farming Community Dashboard</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  #navbar {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+    align-items: center;
+    height: 60px;
+    background-color: #3498db;
+    color: white;
+  }
+  #navbar a {
+    text-decoration: none;
+    margin-right: 30px;
+    color: white;
+    font-size: 31px;
+    font-family: Arial;
+  }
+  #navbar .wallet-button {
+    margin-left: auto;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+  #navbar .wallet-button img {
+    max-height: 50px;
+  }
+  #container {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    margin: auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  #dashboard {
+    flex: 2;
+    padding: 20px;
+  }
+  #map {
+    flex: 1;
+    height: 70vh;
+    border-left: 1px solid #ccc;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 20px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 24px;
+    margin: 0 0 15px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #555;
+    font-family: Arial, sans-serif;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+  }
+  .village-name {
+    cursor: pointer;
+    color: #3498db;
+    text-decoration: underline;
+    margin-right: 10px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  .village-acres {
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #555;
+  }
+  .view-button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+  }
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 1100px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+  }
+  .modal-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    position: relative;
+  }
+  .modal-section {
+    flex: 1;
+    padding: 5px;
+    margin: 0;
+  }
+  .modal-left {
+    flex: 1;
+  }
+  .modal-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+  /* Small map styles */
+  #modalMap {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+  }
+  /* New style for acres */
+  .acres {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  /* Styling for Village Section */
+  .village-list {
+    list-style: none;
+    padding: 0;
+  }
+  .village-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+  }
+  .village-item:last-child {
+    border-bottom: none;
+  }
+  .village-item a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .wallet-button {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: white;
+    margin-left: auto;
+    padding-right: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .wallet-button img {
+    max-height: 50px;
+    margin-right: 10px;
+  }
+  .small-logo {
+  max-height: 90px; /* Adjust the height as needed */
+  margin-right: 90px;
+}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+<div id="navbar">
+  <img src="logo.jpeg" alt="Logo" class="small-logo">
+  <a href="index.html">Home</a>
+  <a href="dashboard.html">Dashboard</a>
+    <div class="wallet-button">
+    <img src="index.png" alt="Wallet" id="walletImage" onclick="connectToMetaMask()">
+    <span id="balance">FarmX Tokens: 100,000</span>
+	
+  </div>
+</div>
+<div id="container">
+  <div id="dashboard">
+    <h1>Dashboard</h1>
+    <p>Welcome to the FarmX Dashboard. Here, you can manage various aspects of your farming activities and stay connected with the community.</p>
+    <div id="village-section">
+      <h2>Your Villages</h2>
+      <ul class="village-list">
+        <li class="village-item">
+          <a href="#" onclick="showVillage('Ganeshpur')">Ganeshpur</a>
+          <p class="village-acres">Acres: <span id="GaneshpurAcres">100</span></p>
+        </li>
+      </ul>
+      
+    </div>
+    <div id="plantation-section">
+      <h2>Plantation</h2>
+      <p>Explore and manage your plantation activities to ensure healthy and bountiful crops.</p>
+      <ul>
+        <li>
+          <p class="plantation-description">Ganeshpur village is surrounded by vast agricultural lands, featuring farms cultivating crops like wheat, rice, and vegetables. The farms are known for their sustainable and eco-friendly practices.</p>
+        </li>
+      </ul>
+      <button class="view-button" onclick="showAnalytics()">Show Analytics</button>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+<div id="analyticsModal" class="modal">
+  <div class="modal-content">
+  <p class="acres">Total FarmX Profit: <span id="totalProfit">0</span></p>
+
+    <span class="close-button" onclick="closeAnalytics()">&times;</span>
+    <div class="modal-section modal-left">
+      <canvas id="analyticsChart" style="max-width: 100%;"></canvas>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  var map = L.map('map').setView([30.712585, 77.861215], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 40,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+// Calculate the latitude and longitude span for approximately 2 kilometers
+var latSpan = 0.0008;
+var lngSpan = 0.0008;
+
+// Define the coordinates for the larger square's top-left and bottom-right corners
+var topLeft = [30.712585 + latSpan, 77.861215 - lngSpan];
+var bottomRight = [30.712585 - latSpan, 77.861215 + lngSpan];
+
+// Create a rectangle using the specified corners
+var squareBorder = L.rectangle([topLeft, bottomRight], {
+  color: 'red',
+  weight: 2,
+  fillOpacity: 0
+}).addTo(map);
+
+
+  var villageData = [
+    { name: 'Ganeshpur', acres: 100, latitude: 30.712585, longitude: 77.861215 },
+  ];
+
+  function showVillage(villageName) {
+    var village = villageData.find(village => village.name === villageName);
+    if (village) {
+      map.setView([village.latitude, village.longitude], 15);
+      document.getElementById("GaneshpurAcres").textContent = village.acres;
+      resetAnalyticsChart();
+    }
+  }
+
+  function showAnalytics() {
+    var modal = document.getElementById("analyticsModal");
+    modal.style.display = "block";
+    renderAnalyticsChart();
+  }
+
+  function resetAnalyticsChart() {
+    var chartElement = document.getElementById("analyticsChart");
+    if (chartElement && chartElement.chart) {
+      chartElement.chart.destroy();
+    }
+  }
+
+  function renderAnalyticsChart() {
+  var chartElement = document.getElementById("analyticsChart");
+  var totalProfitElement = document.getElementById("totalProfit");
+
+  var ctx = chartElement.getContext("2d");
+
+  var villageAcres = 30;
+  var totalAcres = 100; // Total acres for all villages (example value)
+  var remainingAcres = totalAcres - villageAcres;
+
+  var totalProfit = 100000; // Set the total profit value to 100,000
+  totalProfitElement.textContent = totalProfit.toFixed(2);
+
+  var data = {
+    labels: ["Your Acres", "Total Acres"],
+    datasets: [
+      {
+        data: [villageAcres, remainingAcres],
+        backgroundColor: ["#3498db", "#e74c3c"],
+      },
+    ],
+  };
+
+  var options = {
+    maintainAspectRatio: false,
+    responsive: true,
+  };
+
+  chartElement.chart = new Chart(ctx, {
+    type: "pie",
+    data: data,
+    options: options,
+  });
+}
+
+  function closeAnalytics() {
+    var modal = document.getElementById("analyticsModal");
+    modal.style.display = "none";
+    resetAnalyticsChart();
+  }
+  
+  async function connectToMetaMask() {
+  
+    try {
+      await window.ethereum.enable();
+      const web3 = new Web3(window.ethereum);
+      const accounts = await web3.eth.getAccounts();
+
+      if (accounts.length > 0) {
+        const address = accounts[0];
+        const balanceWei = await web3.eth.getBalance(address);
+        const balanceEther = web3.utils.fromWei(balanceWei, 'ether');
+
+        const balanceElement = document.getElementById('balance');
+        balanceElement.innerText = 'Balance: ' + balanceEther + ' ETH';
+      } else {
+        console.error('No accounts found.');
+      }
+    } catch (error) {
+      console.error('Error connecting to MetaMask:', error);
+
+      // Log additional error details if available
+      if (error.message) {
+        console.error('Error message:', error.message);
+      }
+      if (error.code) {
+        console.error('Error code:', error.code);
+      }
+      if (error.stack) {
+        console.error('Error stack trace:', error.stack);
+      }
+    }
+  
+}
+
+</script>
+</body>
+</html>
